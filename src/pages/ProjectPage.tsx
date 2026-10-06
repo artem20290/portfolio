@@ -96,9 +96,13 @@ function ProjectDemo({ project }: { project: Project }) {
 
   useEffect(() => {
     setReady('loading');
-    fetch(demoPath, { method: 'HEAD' })
+    const controller = new AbortController();
+    fetch(demoPath, { method: 'GET', cache: 'no-store', signal: controller.signal })
       .then((res) => setReady(res.ok ? 'ok' : 'missing'))
-      .catch(() => setReady('missing'));
+      .catch((err) => {
+        if (err?.name !== 'AbortError') setReady('missing');
+      });
+    return () => controller.abort();
   }, [demoPath]);
 
   useEffect(() => {

@@ -57,7 +57,7 @@ export const projects: Project[] = [
       'Мобильный UI в фирменном стиле СИБУР',
     ],
     gallery: [img('klik.png')],
-    demo: 'projects/social/index.html',
+    demo: '/projects/social/index.html',
     link: '#',
   },
   {
@@ -163,7 +163,7 @@ export const projects: Project[] = [
       'Аудит и покрытие контрактами',
     ],
     gallery: [img('procurement-management-portal-design.png')],
-    demo: 'projects/procurement-management-portal-design/demo.html',
+    demo: '/projects/procurement-management-portal-design/demo.html',
     link: '#',
   },
   {
@@ -185,7 +185,7 @@ export const projects: Project[] = [
       'Узлы от руды до концентрата',
     ],
     gallery: [img('flotatsiya.png')],
-    demo: 'projects/flotatsiya/index.html',
+    demo: '/projects/flotatsiya/index.html',
     link: '#',
   },
 ];

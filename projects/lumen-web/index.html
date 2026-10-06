@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumen Web — Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: #07070a;
+      color: #fff;
+      min-height: 100vh;
+    }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 32px; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .logo { font-weight: 800; letter-spacing: .08em; }
+    .nav-links { display: flex; gap: 24px; font-size: 14px; color: rgba(255,255,255,.6); }
+    .hero {
+      padding: 80px 32px 48px;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .badge {
+      display: inline-block; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid rgba(124,255,103,.3); color: #7cff67;
+      font-size: 12px; text-transform: uppercase; letter-spacing: .2em; margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; line-height: 1;
+      background: linear-gradient(90deg, #7cff67, #B497CF, #5227FF);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+    .sub { color: rgba(255,255,255,.6); font-size: 18px; max-width: 520px; line-height: 1.6; }
+    .cta { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      padding: 12px 24px; border-radius: 999px; font-weight: 600; font-size: 14px;
+      border: none; cursor: pointer;
+    }
+    .btn-primary { background: linear-gradient(90deg, #7cff67, #5227FF); color: #000; }
+    .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.2); }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px; padding: 32px; max-width: 1100px; margin: 0 auto;
+    }
+    .card {
+      padding: 24px; border-radius: 16px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    }
+    .card h3 { font-size: 14px; color: rgba(255,255,255,.5); margin-bottom: 8px; }
+    .card .val { font-size: 28px; font-weight: 800; }
+    .preview {
+      margin: 0 32px 48px; border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      background: linear-gradient(135deg, #111, #1a1030);
+      min-height: 320px; display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.35); font-size: 14px; letter-spacing: .15em; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">LUMEN</div>
+    <div class="nav-links"><span>Product</span><span>Pricing</span><span>Docs</span></div>
+  </nav>
+  <section class="hero">
+    <div class="badge">AI Platform</div>
+    <h1>Think faster.<br>Create brighter.</h1>
+    <p class="sub">Интерактивный промо-интерфейс. Замените этот файл своей сборкой из <code>npm run build</code>.</p>
+    <div class="cta">
+      <button class="btn btn-primary">Start free</button>
+      <button class="btn btn-ghost">Watch demo</button>
+    </div>
+  </section>
+  <div class="preview">WebGL scene · scroll triggers</div>
+  <div class="grid">
+    <div class="card"><h3>Latency</h3><div class="val">12ms</div></div>
+    <div class="card"><h3>Users</h3><div class="val">48k</div></div>
+    <div class="card"><h3>Uptime</h3><div class="val">99.9%</div></div>
+    <div class="card"><h3>NPS</h3><div class="val">72</div></div>
+  </div>
+</body>
+</html>

@@ -166,11 +166,15 @@ function renderWorksList() {
   const counterEl = document.getElementById('works-counter');
   const prevBtn = document.getElementById('works-prev');
   const nextBtn = document.getElementById('works-next');
+  const hintEl = document.getElementById('works-hint');
   if (!root || !track || !viewport) return;
 
   destroyWorksCarousel();
 
   const n = projects.length;
+  const mq = window.matchMedia('(max-width: 720px)');
+  const isMobile = () => mq.matches;
+
   track.innerHTML = projects.map((p) => (
     '<article class="ryn-work-shell pf-work-shell">' +
       '<div class="pf-work-slide">' +
@@ -194,49 +198,8 @@ function renderWorksList() {
 
   const cards = Array.from(track.querySelectorAll('.pf-work-shell'));
   const cleanups = [];
-  let angle = 0;
-  let velocity = 0.012;
-  const autoSpeed = 0.012;
-  let dragging = false;
-  let lastX = 0;
-  let moved = 0;
-  let radius = 360;
-  let running = true;
   let frontIndex = 0;
-  let hoverPaused = false;
-
-  function measure() {
-    const vw = viewport.clientWidth || window.innerWidth;
-    const w = Math.min(340, vw * 0.62);
-    radius = Math.max(300, Math.min(460, Math.round(w * 1.12 + n * 6)));
-  }
-
-  function layoutRing() {
-    const step = (Math.PI * 2) / n;
-    let best = 0;
-    let bestDepth = -Infinity;
-    cards.forEach((card, i) => {
-      const a = (angle * Math.PI) / 180 + i * step;
-      const x = Math.sin(a) * radius;
-      const z = Math.cos(a) * radius;
-      const depth = Math.cos(a);
-      const scale = 0.62 + Math.max(0, depth) * 0.38;
-      card.style.transform =
-        'translate(-50%, -50%) translate3d(' + x.toFixed(2) + 'px, 0, ' + z.toFixed(2) + 'px) rotateY(' +
-        (-(a * 180) / Math.PI).toFixed(2) + 'deg) scale(' + scale.toFixed(3) + ')';
-      card.style.opacity = String(0.45 + Math.max(0, depth) * 0.55);
-      card.style.zIndex = String(Math.round(40 + depth * 80));
-      card.classList.toggle('is-front', depth > 0.82);
-      if (depth > bestDepth) {
-        bestDepth = depth;
-        best = i;
-      }
-    });
-    if (best !== frontIndex) {
-      frontIndex = best;
-      syncUI();
-    }
-  }
+  let mode = '';
 
   function syncUI() {
     if (dotsEl) {
@@ -250,30 +213,11 @@ function renderWorksList() {
     }
     if (prevBtn) prevBtn.disabled = false;
     if (nextBtn) nextBtn.disabled = false;
-  }
-
-  function goTo(targetIndex) {
-    const step = 360 / n;
-    const current = ((-angle % 360) + 360) % 360;
-    const desired = ((-targetIndex * step) % 360 + 360) % 360;
-    let delta = desired - current;
-    if (delta > 180) delta -= 360;
-    if (delta < -180) delta += 360;
-    angle -= delta;
-    velocity = 0;
-    layoutRing();
-    syncUI();
-  }
-
-  function tick() {
-    if (!running) return;
-    if (!dragging && !hoverPaused) {
-      angle += velocity;
-      velocity += (autoSpeed - velocity) * 0.04;
+    if (hintEl) {
+      hintEl.textContent = mode === 'mobile'
+        ? 'Свайпните влево · все проекты'
+        : 'Тяните по кругу · все проекты видны';
     }
-    angle = ((angle % 360) + 360) % 360;
-    layoutRing();
-    worksCarousel.raf = requestAnimationFrame(tick);
   }
 
   function openProjectFrom(el, e) {
@@ -286,11 +230,7 @@ function renderWorksList() {
   track.querySelectorAll('[data-project-id]').forEach((btn) => {
     const onClick = (e) => openProjectFrom(btn, e);
     const onPointerDownBtn = (e) => {
-      // Don't start carousel drag from case buttons / card hits
       e.stopPropagation();
-      dragging = false;
-      moved = 0;
-      velocity = 0;
     };
     btn.addEventListener('click', onClick);
     btn.addEventListener('pointerdown', onPointerDownBtn);
@@ -300,109 +240,258 @@ function renderWorksList() {
     );
   });
 
-  // Pause spin while pointer is over the front card so "Смотреть кейс" is easy to hit
-  const onTrackOver = (e) => {
-    const onFront = !!e.target.closest('.pf-work-shell.is-front');
-    hoverPaused = onFront;
-    if (onFront) velocity = 0;
-  };
-  const onTrackLeave = () => { hoverPaused = false; };
-  track.addEventListener('pointerover', onTrackOver);
-  track.addEventListener('pointerleave', onTrackLeave);
-  cleanups.push(
-    () => track.removeEventListener('pointerover', onTrackOver),
-    () => track.removeEventListener('pointerleave', onTrackLeave),
-  );
-
-  if (dotsEl) {
-    dotsEl.querySelectorAll('.ryn-works-dot, .pf-works-dot').forEach((dot) => {
-      const onClick = () => goTo(Number(dot.getAttribute('data-index')));
-      dot.addEventListener('click', onClick);
-      cleanups.push(() => dot.removeEventListener('click', onClick));
+  function startMobile() {
+    mode = 'mobile';
+    root.classList.add('is-mobile-works');
+    cards.forEach((card) => {
+      card.style.transform = '';
+      card.style.opacity = '';
+      card.style.zIndex = '';
+      card.classList.add('is-front');
     });
-  }
 
-  if (prevBtn) {
-    const onPrev = () => goTo((frontIndex - 1 + n) % n);
-    prevBtn.addEventListener('click', onPrev);
-    cleanups.push(() => prevBtn.removeEventListener('click', onPrev));
-  }
-  if (nextBtn) {
-    const onNext = () => goTo((frontIndex + 1) % n);
-    nextBtn.addEventListener('click', onNext);
-    cleanups.push(() => nextBtn.removeEventListener('click', onNext));
-  }
-
-  let captureId = null;
-  function onPointerDown(e) {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (e.target.closest('[data-project-id]')) return;
-    dragging = true;
-    moved = 0;
-    lastX = e.clientX;
-    velocity = 0;
-    root.classList.add('is-dragging');
-  }
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - lastX;
-    lastX = e.clientX;
-    moved = Math.max(moved, Math.abs(dx));
-    if (moved > 6 && captureId == null && viewport.setPointerCapture) {
-      captureId = e.pointerId;
-      try { viewport.setPointerCapture(e.pointerId); } catch (_) {}
+    function nearestIndex() {
+      const mid = viewport.scrollLeft + viewport.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      cards.forEach((card, i) => {
+        const center = card.offsetLeft + card.offsetWidth / 2;
+        const dist = Math.abs(center - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
+      });
+      return best;
     }
-    if (moved <= 6) return;
-    angle -= dx * 0.28;
-    velocity = -dx * 0.02;
-    layoutRing();
-  }
-  function onPointerUp(e) {
-    if (!dragging) return;
-    dragging = false;
-    root.classList.remove('is-dragging');
-    if (captureId != null && viewport.releasePointerCapture) {
-      try { viewport.releasePointerCapture(captureId); } catch (_) {}
+
+    function goTo(targetIndex) {
+      const card = cards[targetIndex];
+      if (!card) return;
+      const left = card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2;
+      viewport.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+      frontIndex = targetIndex;
+      syncUI();
     }
-    captureId = null;
-    moved = 0;
+
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        const next = nearestIndex();
+        if (next !== frontIndex) {
+          frontIndex = next;
+          syncUI();
+        }
+      });
+    };
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+    cleanups.push(() => viewport.removeEventListener('scroll', onScroll));
+
+    if (dotsEl) {
+      dotsEl.querySelectorAll('.ryn-works-dot, .pf-works-dot').forEach((dot) => {
+        const onClick = () => goTo(Number(dot.getAttribute('data-index')));
+        dot.addEventListener('click', onClick);
+        cleanups.push(() => dot.removeEventListener('click', onClick));
+      });
+    }
+    if (prevBtn) {
+      const onPrev = () => goTo((frontIndex - 1 + n) % n);
+      prevBtn.addEventListener('click', onPrev);
+      cleanups.push(() => prevBtn.removeEventListener('click', onPrev));
+    }
+    if (nextBtn) {
+      const onNext = () => goTo((frontIndex + 1) % n);
+      nextBtn.addEventListener('click', onNext);
+      cleanups.push(() => nextBtn.removeEventListener('click', onNext));
+    }
+
+    frontIndex = 0;
+    syncUI();
+    requestAnimationFrame(() => goTo(0));
   }
 
-  viewport.addEventListener('pointerdown', onPointerDown);
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', onPointerUp);
-  window.addEventListener('pointercancel', onPointerUp);
-  cleanups.push(
-    () => viewport.removeEventListener('pointerdown', onPointerDown),
-    () => window.removeEventListener('pointermove', onPointerMove),
-    () => window.removeEventListener('pointerup', onPointerUp),
-    () => window.removeEventListener('pointercancel', onPointerUp),
-  );
+  function startDesktop() {
+    mode = 'desktop';
+    root.classList.remove('is-mobile-works');
+    cards.forEach((card) => card.classList.remove('is-front'));
 
-  const onWheel = (e) => {
-    if (Math.abs(e.deltaX) + Math.abs(e.deltaY) < 4) return;
-    e.preventDefault();
-    const d = e.deltaX !== 0 ? e.deltaX : e.deltaY;
-    angle += d * 0.05;
-    velocity = d * 0.002;
-    layoutRing();
-  };
-  viewport.addEventListener('wheel', onWheel, { passive: false });
-  cleanups.push(() => viewport.removeEventListener('wheel', onWheel));
+    let angle = 0;
+    let velocity = 0.012;
+    const autoSpeed = 0.012;
+    let dragging = false;
+    let lastX = 0;
+    let moved = 0;
+    let radius = 360;
+    let running = true;
+    let hoverPaused = false;
+    let captureId = null;
 
-  const onResize = () => {
+    function measure() {
+      const vw = viewport.clientWidth || window.innerWidth;
+      const w = Math.min(340, vw * 0.62);
+      radius = Math.max(300, Math.min(460, Math.round(w * 1.12 + n * 6)));
+    }
+
+    function layoutRing() {
+      const step = (Math.PI * 2) / n;
+      let best = 0;
+      let bestDepth = -Infinity;
+      cards.forEach((card, i) => {
+        const a = (angle * Math.PI) / 180 + i * step;
+        const x = Math.sin(a) * radius;
+        const z = Math.cos(a) * radius;
+        const depth = Math.cos(a);
+        const scale = 0.62 + Math.max(0, depth) * 0.38;
+        card.style.transform =
+          'translate(-50%, -50%) translate3d(' + x.toFixed(2) + 'px, 0, ' + z.toFixed(2) + 'px) rotateY(' +
+          (-(a * 180) / Math.PI).toFixed(2) + 'deg) scale(' + scale.toFixed(3) + ')';
+        card.style.opacity = String(0.45 + Math.max(0, depth) * 0.55);
+        card.style.zIndex = String(Math.round(40 + depth * 80));
+        card.classList.toggle('is-front', depth > 0.82);
+        if (depth > bestDepth) {
+          bestDepth = depth;
+          best = i;
+        }
+      });
+      if (best !== frontIndex) {
+        frontIndex = best;
+        syncUI();
+      }
+    }
+
+    function goTo(targetIndex) {
+      const step = 360 / n;
+      const current = ((-angle % 360) + 360) % 360;
+      const desired = ((-targetIndex * step) % 360 + 360) % 360;
+      let delta = desired - current;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      angle -= delta;
+      velocity = 0;
+      layoutRing();
+      syncUI();
+    }
+
+    function tick() {
+      if (!running) return;
+      if (!dragging && !hoverPaused) {
+        angle += velocity;
+        velocity += (autoSpeed - velocity) * 0.04;
+      }
+      angle = ((angle % 360) + 360) % 360;
+      layoutRing();
+      worksCarousel.raf = requestAnimationFrame(tick);
+    }
+
+    const onTrackOver = (e) => {
+      const onFront = !!e.target.closest('.pf-work-shell.is-front');
+      hoverPaused = onFront;
+      if (onFront) velocity = 0;
+    };
+    const onTrackLeave = () => { hoverPaused = false; };
+    track.addEventListener('pointerover', onTrackOver);
+    track.addEventListener('pointerleave', onTrackLeave);
+    cleanups.push(
+      () => track.removeEventListener('pointerover', onTrackOver),
+      () => track.removeEventListener('pointerleave', onTrackLeave),
+    );
+
+    if (dotsEl) {
+      dotsEl.querySelectorAll('.ryn-works-dot, .pf-works-dot').forEach((dot) => {
+        const onClick = () => goTo(Number(dot.getAttribute('data-index')));
+        dot.addEventListener('click', onClick);
+        cleanups.push(() => dot.removeEventListener('click', onClick));
+      });
+    }
+    if (prevBtn) {
+      const onPrev = () => goTo((frontIndex - 1 + n) % n);
+      prevBtn.addEventListener('click', onPrev);
+      cleanups.push(() => prevBtn.removeEventListener('click', onPrev));
+    }
+    if (nextBtn) {
+      const onNext = () => goTo((frontIndex + 1) % n);
+      nextBtn.addEventListener('click', onNext);
+      cleanups.push(() => nextBtn.removeEventListener('click', onNext));
+    }
+
+    function onPointerDown(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest('[data-project-id]')) return;
+      dragging = true;
+      moved = 0;
+      lastX = e.clientX;
+      velocity = 0;
+      root.classList.add('is-dragging');
+    }
+    function onPointerMove(e) {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      moved = Math.max(moved, Math.abs(dx));
+      if (moved > 6 && captureId == null && viewport.setPointerCapture) {
+        captureId = e.pointerId;
+        try { viewport.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+      if (moved <= 6) return;
+      angle -= dx * 0.28;
+      velocity = -dx * 0.02;
+      layoutRing();
+    }
+    function onPointerUp() {
+      if (!dragging) return;
+      dragging = false;
+      root.classList.remove('is-dragging');
+      if (captureId != null && viewport.releasePointerCapture) {
+        try { viewport.releasePointerCapture(captureId); } catch (_) {}
+      }
+      captureId = null;
+      moved = 0;
+    }
+
+    viewport.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+    cleanups.push(
+      () => viewport.removeEventListener('pointerdown', onPointerDown),
+      () => window.removeEventListener('pointermove', onPointerMove),
+      () => window.removeEventListener('pointerup', onPointerUp),
+      () => window.removeEventListener('pointercancel', onPointerUp),
+    );
+
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) + Math.abs(e.deltaY) < 4) return;
+      e.preventDefault();
+      const d = e.deltaX !== 0 ? e.deltaX : e.deltaY;
+      angle += d * 0.05;
+      velocity = d * 0.002;
+      layoutRing();
+    };
+    viewport.addEventListener('wheel', onWheel, { passive: false });
+    cleanups.push(() => viewport.removeEventListener('wheel', onWheel));
+    cleanups.push(() => { running = false; });
+
     measure();
     layoutRing();
-  };
-  window.addEventListener('resize', onResize);
-  cleanups.push(() => window.removeEventListener('resize', onResize));
-  cleanups.push(() => { running = false; });
+    syncUI();
+    worksCarousel.raf = requestAnimationFrame(tick);
+  }
 
-  measure();
-  layoutRing();
-  syncUI();
+  const onModeChange = () => {
+    renderWorksList();
+  };
+  if (mq.addEventListener) mq.addEventListener('change', onModeChange);
+  else mq.addListener(onModeChange);
+  cleanups.push(() => {
+    if (mq.removeEventListener) mq.removeEventListener('change', onModeChange);
+    else mq.removeListener(onModeChange);
+  });
+
   worksCarousel = { cleanups, raf: 0 };
-  worksCarousel.raf = requestAnimationFrame(tick);
+  if (isMobile()) startMobile();
+  else startDesktop();
 }
 
 function getProjectDemoPath(p) {

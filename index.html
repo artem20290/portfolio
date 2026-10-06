@@ -659,6 +659,85 @@
       font-size: 13px;
       margin-top: 8px;
     }
+    @media (max-width: 720px) {
+      .pf-port-head {
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      .pf-works-carousel.is-mobile-works {
+        perspective: none;
+      }
+      .pf-works-carousel.is-mobile-works .pf-works-viewport {
+        height: auto;
+        min-height: 0;
+        overflow-x: auto;
+        overflow-y: visible;
+        perspective: none;
+        transform-style: flat;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+        cursor: default;
+        scrollbar-width: none;
+        padding: 4px 0 8px;
+      }
+      .pf-works-carousel.is-mobile-works .pf-works-viewport::-webkit-scrollbar {
+        display: none;
+      }
+      .pf-works-carousel.is-mobile-works .pf-works-track {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        display: flex;
+        align-items: stretch;
+        gap: 14px;
+        height: auto;
+        min-height: 0;
+        padding: 4px calc((100% - min(86vw, 340px)) / 2);
+        transform: none !important;
+        transform-style: flat;
+        will-change: auto;
+      }
+      .pf-works-carousel.is-mobile-works .pf-work-shell {
+        position: relative;
+        left: auto;
+        top: auto;
+        flex: 0 0 min(86vw, 340px);
+        width: min(86vw, 340px);
+        margin: 0;
+        transform: none !important;
+        opacity: 1 !important;
+        z-index: 1 !important;
+        scroll-snap-align: center;
+        pointer-events: auto !important;
+        will-change: auto;
+      }
+      .pf-works-carousel.is-mobile-works .pf-work-slide {
+        height: 100%;
+      }
+      .pf-works-carousel.is-mobile-works .pf-work-body {
+        opacity: 1 !important;
+        max-height: none !important;
+        overflow: visible;
+        padding: 12px 14px 14px !important;
+      }
+      .pf-works-carousel.is-mobile-works .pf-work-body p {
+        -webkit-line-clamp: 4;
+      }
+      .pf-works-carousel.is-mobile-works .pf-works-hint {
+        margin-top: 12px;
+      }
+      .pf-works-carousel.is-mobile-works .pf-works-controls {
+        margin-top: 16px;
+      }
+      .pf-section { padding: 56px 0; }
+      .pf-services {
+        margin: 0;
+        border-radius: 28px;
+        padding: 24px 18px 36px;
+      }
+    }
     .pf-filters {
       display: flex;
       flex-wrap: wrap;
@@ -971,7 +1050,7 @@
             <div class="ryn-works-dots pf-works-dots" id="works-dots" role="tablist" aria-label="Слайды"></div>
             <div class="ryn-works-counter pf-works-counter" id="works-counter" hidden></div>
           </div>
-          <p class="pf-works-hint">Тяните по кругу · все проекты видны</p>
+          <p class="pf-works-hint" id="works-hint">Тяните по кругу · все проекты видны</p>
         </div>
       </div>
     </section>
@@ -1071,6 +1150,6 @@
       nodes.forEach(function (el) { io.observe(el); });
     })();
   </script>
-  <script type="module" src="js/main.js?v=pf-circle-9"></script>
+  <script type="module" src="js/main.js?v=pf-mobile-cards-1"></script>
 </body>
 </html>

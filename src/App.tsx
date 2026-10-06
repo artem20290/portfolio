@@ -192,8 +192,13 @@ export default function App() {
                 <div className="mt-1 text-lg font-medium">@alex_design</div>
               </a>
               <div className="flex flex-wrap gap-4 px-1 pt-2 text-sm font-semibold text-[#595959]">
-                <a href="#" className="hover:text-[#010101]">
-                  Dribbble
+                <a
+                  href="https://www.figma.com/design/GtwEWYySQdH6Lkf4vtcZiQ/%D0%9F%D0%BE%D1%80%D1%82%D1%84%D0%BE%D0%BB%D0%B8%D0%BE-%D0%90%D0%9A?node-id=0-1&t=sPY125p3ItN31LXS-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#010101]"
+                >
+                  Figma
                 </a>
                 <a href="#" className="hover:text-[#010101]">
                   Behance
@@ -211,7 +216,14 @@ export default function App() {
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-white/70">
           <div>© 2026 Крецкий Артём</div>
-          <div>Product & UI/UX Designer</div>
+          <a
+            href="https://www.figma.com/design/GtwEWYySQdH6Lkf4vtcZiQ/%D0%9F%D0%BE%D1%80%D1%82%D1%84%D0%BE%D0%BB%D0%B8%D0%BE-%D0%90%D0%9A?node-id=0-1&t=sPY125p3ItN31LXS-1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-white"
+          >
+            Портфолио в Figma
+          </a>
         </div>
       </section>
     </div>

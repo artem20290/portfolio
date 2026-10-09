@@ -245,6 +245,30 @@
       background: rgba(255,255,255,0.18);
       box-shadow: 0 12px 40px rgba(0,0,0,0.15);
     }
+    .pf-hero-cta--links {
+      width: auto;
+      gap: 4px;
+    }
+    .pf-hero-cta--links .pf-btn-orange {
+      font-size: 18px;
+      padding: 12px 20px;
+    }
+    .pf-hero-cta--links .pf-btn-ghost {
+      flex: none;
+      font-size: 18px;
+      padding: 12px 14px;
+      white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .pf-hero-cta--links .pf-btn-orange {
+        font-size: 15px;
+        padding: 10px 14px;
+      }
+      .pf-hero-cta--links .pf-btn-ghost {
+        font-size: 15px;
+        padding: 10px 8px;
+      }
+    }
     .pf-hero-side {
       position: absolute;
       z-index: 2;
@@ -1030,10 +1054,12 @@
           <div class="pf-stars" aria-hidden="true">★★★★★</div>
           <div class="pf-years">10+ лет<span>опыта</span></div>
         </div>
-        <div class="pf-hero-cta">
+        <nav class="pf-hero-cta pf-hero-cta--links" aria-label="Ссылки">
           <a class="pf-btn-orange" href="#works">Портфолио ↗</a>
-          <a class="pf-btn-ghost" href="#contact">Написать</a>
-        </div>
+          <a class="pf-btn-ghost" href="https://www.figma.com/design/GtwEWYySQdH6Lkf4vtcZiQ/%D0%9F%D0%BE%D1%80%D1%82%D1%84%D0%BE%D0%BB%D0%B8%D0%BE-%D0%90%D0%9A?node-id=0-1&t=sPY125p3ItN31LXS-1" target="_blank" rel="noopener noreferrer">Фигма</a>
+          <a class="pf-btn-ghost" href="https://dribbble.com/art_202_90" target="_blank" rel="noopener noreferrer">Dribbble</a>
+          <a class="pf-btn-ghost" href="https://krasnodar.hh.ru/resume/27fbbd3fff0b7f88040039ed1f567753725736" target="_blank" rel="noopener noreferrer">HH</a>
+        </nav>
       </div>
     </section>
 
